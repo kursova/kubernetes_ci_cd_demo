@@ -1,0 +1,14 @@
+image:
+  repository: erkansirin78/demoapp
+  tag: "38b980c9fa9536fcf0f98dc1764faf2623d5335e"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: 8080
+
+replicaCount: 1
+
+resources: {}

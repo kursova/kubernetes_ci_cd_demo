@@ -1,0 +1,43 @@
+name: Build and Deploy
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: DOCKER_USER
+    permissions:
+      contents: write   # allow pushing the values.yaml update
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USER }}/demoapp:${{ github.sha }}
+
+      - name: Update Helm values with new image repo
+        run: |
+          sed -i "s|repository: .*|repository: ${{ secrets.DOCKER_USER }}/demoapp|g" helm/values.yaml
+
+      - name: Update Helm values tag to git sha
+        run: |
+          sed -i "s|tag: ".*"|tag: \"${{ github.sha }}\"|g" helm/values.yaml
+
+      - name: Commit and push chart changes
+        run: |
+          git config user.name "ci-bot"
+          git config user.email "ci@example.com"
+          git add helm/values.yaml
+          git commit -m "Update image tag to ${{ github.sha }}"
+          git push
