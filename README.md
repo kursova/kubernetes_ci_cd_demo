@@ -1,6 +1,5 @@
 # Kubernetes CI/CD Demo (GitHub Actions + Argo CD)
 
-A minimal end-to-end demo you can show in ~30 minutes.
 
 ## Prereqs (local)
 - Docker Desktop or Minikube (kubectl working)
@@ -8,6 +7,24 @@ A minimal end-to-end demo you can show in ~30 minutes.
 - A GitHub repo with two secrets:
   - `DOCKER_USER`
   - `DOCKER_PASS`
+
+## Local Development
+
+### Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### Run Locally
+```bash
+python app/main.py
+```
+
+### Run Tests
+```bash
+pytest
+```
+
 
 ## 1) Install Argo CD locally
 ```bash
@@ -52,7 +69,7 @@ kubectl create ns demo
 
 - Edit `app/main.py` → change the text → commit & push
 - Watch GitHub Actions build and push image
-- Argo CD auto-syncs and deploys the new version
+- Argo CD auto-syncs and deploys the new verson
 - Refresh browser → see the new message 🎉
 
 ## Rollback
