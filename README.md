@@ -1,83 +1,68 @@
-# Kubernetes CI/CD Demo (GitHub Actions + Argo CD)
 
 
-## Prereqs (local)
-- Docker Desktop or Minikube (kubectl working)
-- Argo CD
-- A GitHub repo with two secrets:
-  - `DOCKER_USER`
-  - `DOCKER_PASS`
+## Projenin Amacı
 
-## Local Development
+Bu demo ile;
 
-### Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+✔ GitHub Actions ile Docker image’ın otomatik olarak build edilmesi  
+✔ Her push işleminde yeni image tag üretilmesi  
+✔ Helm `values.yaml` içindeki imaj tag bilgisinin CI tarafından güncellenmesi  
+✔ ArgoCD’nin manifests branch’ini izleyerek otomatik deploy yapması  
+✔ Kubernetes üzerinde version-rollout ve rollback yönetimi  
 
-### Run Locally
-```bash
-python app/main.py
-```
-
-### Run Tests
-```bash
-pytest
-```
-
-
-## 1) Install Argo CD locally
-```bash
-kubectl create ns argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl -n argocd port-forward svc/argocd-server 8080:443
-# login password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-```
-
-## 2) Create your GitHub repo
-- Push this folder to a repo named, e.g., `k8s-cicd-demo`
-- Add GitHub repo *Secrets*: `DOCKER_USER`, `DOCKER_PASS`
-
-## 3) Fix image repository in values.yaml (first commit only)
-Replace `REPLACE_WITH_YOUR_DOCKERHUB_USERNAME` with your Docker Hub username in `helm/values.yaml`.
-(Or let the Action do it on first push via the sed step.)
-
-## 4) Create Argo CD application
-In Argo UI → NEW APP:
-
-| Field | Value |
-|------|-------|
-| Name | demoapp |
-| Project | default |
-| Sync Policy | Automatic |
-| Repo URL | https://github.com/<you>/k8s-cicd-demo |
-| Target Revision | manifests |
-| Path | helm/ |
-| Cluster | https://kubernetes.default.svc |
-| Namespace | demo |
-
-```bash
-kubectl create ns demo
-```
-
-## 5) Run the demo
-- Open the app:
-  ```bash
-  kubectl -n demo port-forward svc/demoapp 8081:80
-  # Visit http://localhost:8081
-  ```
-
-- Edit `app/main.py` → change the text → commit & push
-- Watch GitHub Actions build and push image
-- Argo CD auto-syncs and deploys the new verson
-- Refresh browser → see the new message 🎉
-
-## Rollback
-Use the Argo CD UI to roll back to a previous revision.
+amaçlanmıştır.
 
 ---
 
-**Tip:** If your cluster needs an image pull secret, add it to the `demo` namespace and reference it in the deployment template.
-# trigger build
+## Genel Mimari Akışı
+
+Developer → Push (main)
+↓
+GitHub Actions (CI)
+↓
+Build & Push Docker Image
+↓
+Manifest branch update (image tag)
+↓
+Argo CD (CD)
+↓
+Kubernetes → Automatic Deployment
+
+
+---
+
+## 📁 Repository Yapısı
+
+├── app/                 # FastAPI uygulaması
+│   ├── main.py
+│   └── requirements.txt
+├── helm/                # Helm Chart (deployment, service, values.yaml)
+├── .github/workflows/   # GitHub Actions CI pipeline
+│   └── ci-cd.yaml
+└── manifests branch     # ArgoCD’nin izlediği branch
+
+## Lokal Geliştirme
+
+```bash
+pip install -r app/requirements.txt
+python app/main.py
+pytest  
+
+
+kubectl create ns argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl -n argocd port-forward svc/argocd-server 8080:443
+
+
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d
+
+
+  kubectl create ns demo
+
+
+  kubectl -n demo port-forward svc/demoapp 8081:80
+# http://localhost:8081
+
+
 kubectl run curl-test --image=curlimages/curl --rm -it --restart=Never -- curl demoapp
