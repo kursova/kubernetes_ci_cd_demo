@@ -26,18 +26,27 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USER }}/demoapp:${{ github.sha }}
 
+      - name: Checkout manifests branch
+        uses: actions/checkout@v4
+        with:
+          ref: manifests
+          path: manifests_repo
+
       - name: Update Helm values with new image repo
         run: |
+          cd manifests_repo
           sed -i "s|repository: .*|repository: ${{ secrets.DOCKER_USER }}/demoapp|g" helm/values.yaml
 
       - name: Update Helm values tag to git sha
         run: |
+          cd manifests_repo
           sed -i "s|tag: ".*"|tag: \"${{ github.sha }}\"|g" helm/values.yaml
 
       - name: Commit and push chart changes
         run: |
+          cd manifests_repo
           git config user.name "ci-bot"
           git config user.email "ci@example.com"
           git add helm/values.yaml
           git commit -m "Update image tag to ${{ github.sha }}"
-          git push
+          git push origin manifests

@@ -52,6 +52,7 @@ In Argo UI → NEW APP:
 | Project | default |
 | Sync Policy | Automatic |
 | Repo URL | https://github.com/<you>/k8s-cicd-demo |
+| Target Revision | manifests |
 | Path | helm/ |
 | Cluster | https://kubernetes.default.svc |
 | Namespace | demo |
