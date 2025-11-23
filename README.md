@@ -80,3 +80,4 @@ Use the Argo CD UI to roll back to a previous revision.
 
 **Tip:** If your cluster needs an image pull secret, add it to the `demo` namespace and reference it in the deployment template.
 # trigger build
+kubectl run curl-test --image=curlimages/curl --rm -it --restart=Never -- curl demoapp
