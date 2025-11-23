@@ -18,7 +18,7 @@ def test_hello(client):
     """Test the root route returns 200 and expected content."""
     rv = client.get('/')
     assert rv.status_code == 200
-    assert b"Hello from dev environment!_v2" in rv.data
+    assert b"Hello from dev environment!_v3" in rv.data
 
 def test_health(client):
     """Test the health endpoint."""
