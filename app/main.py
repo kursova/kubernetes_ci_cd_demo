@@ -8,7 +8,7 @@ def create_app():
     @app.route("/")
     def hello():
         env = os.getenv("APP_ENV", "dev")
-        return f"Hello from {env} environment!_v2"
+        return f"Hello from {env} environment!_v3"
 
     @app.route("/health")
     def health():
