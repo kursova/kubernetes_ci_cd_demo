@@ -1,6 +1,6 @@
 image:
   repository: kursova/demoapp
-  tag: "8f44f02ee8df9da058ba1d283353a685e57c530b"
+  tag: "5af90264a591c1b462eca679f531e08d1c15cda3"
   pullPolicy: IfNotPresent
 
 service:
